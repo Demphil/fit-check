@@ -32,7 +32,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({ user, onHistoryClick, onEarnCre
         <header className="fixed top-0 left-0 right-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 py-2 px-4 shadow-sm">
             <div className="flex items-center justify-between max-w-7xl mx-auto">
                 <div className="text-xl font-serif font-bold text-gray-900">
-                    FitCheck
+                    BeepCheck
                 </div>
                 
                 <div className="flex items-center space-x-4">
