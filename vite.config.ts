@@ -5,9 +5,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-        // 👇🔴 هذا هو السطر الذي يجب إضافته 🔴👇
-        // استبدل "fit-check" باسم المستودع الفعلي على GitHub
-        base: '/your-repo-name/', 
+        // ✅ هذا هو الإعداد الصحيح لمستودعك
+        base: '/fit-check/', 
 
         server: {
             port: 3000,
@@ -24,4 +23,5 @@ export default defineConfig(({ mode }) => {
             }
         }
     };
-});
+}); 
+
