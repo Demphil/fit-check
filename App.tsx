@@ -528,7 +528,7 @@ const App: React.FC = () => {
                 >
                     {isBuying ? <Spinner className="absolute inset-0 m-auto"/> : null}
                     <p className={`font-bold text-lg ${isBuying ? 'opacity-0' : ''}`}>20 Credits</p>
-                    <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$1.99</p>
+                    <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$5.00</p>
                 </button>
                 <button 
                     onClick={() => initiatePurchase('pro')} 
@@ -537,7 +537,7 @@ const App: React.FC = () => {
                 >
                     {isBuying ? <Spinner className="absolute inset-0 m-auto"/> : null}
                     <p className={`font-bold text-lg ${isBuying ? 'opacity-0' : ''}`}>50 Credits</p>
-                    <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$3.99</p>
+                    <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$10.00</p>
                 </button>
               </div>
           </div>
