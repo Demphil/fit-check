@@ -10,7 +10,7 @@ export const defaultWardrobe: WardrobeItem[] = [
   {
     id: 'gemini-sweat',
     name: 'Gemini Sweat',
-    url: 'https://i.imghippo.com/files/lSk5925mg.png',
+    url: 'https://storage.googleapis.com/gemini-95-icons/try-on/gemini-sweat-2.png',
   },
   {
     id: 'gemini-tee',
