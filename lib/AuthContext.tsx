@@ -30,6 +30,7 @@ interface AppUser {
     email: string;
     credits: number; 
     plan: 'free' | 'basic' | 'pro';
+    adsWatched?: number; // 💡 إضافة حقل لعدد الإعلانات المشاهدة
 }
 
 interface AuthContextType {
@@ -70,9 +71,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                             uid: firebaseUser.uid,
                             name: data.name || firebaseUser.displayName || 'User',
                             email: firebaseUser.email || '',
-                            // 🔴🔴🔴 التعديل الحاسم هنا: تحويل الرصيد إلى رقم دائماً 🔴🔴🔴
                             credits: parseInt(String(data.credits), 10) || 0,
                             plan: data.plan || 'free',
+                            // 💡 قراءة عدد الإعلانات من قاعدة البيانات
+                            adsWatched: parseInt(String(data.adsWatched), 10) || 0,
                         });
                     } else {
                         // إنشاء مستخدم جديد
@@ -82,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                             credits: 1,
                             plan: 'free' as const,
                             createdAt: new Date(),
+                            adsWatched: 0, // 💡 تعيين القيمة الأولية للمستخدم الجديد
                         };
                         await setDoc(userDocRef, newUserData);
                         setAppUser({ ...newUserData, uid: firebaseUser.uid });

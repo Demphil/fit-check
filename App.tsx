@@ -72,6 +72,7 @@ const App: React.FC = () => {
   } = useAuth();
   
   const [appStatus, setAppStatus] = useState<AppStatus>('start');
+  // 🔴 تم إصلاح الخطأ الإملائي هنا
   const [modelImageUrl, setModelImageUrl] = useState<string | null>(null);
   const [outfitHistory, setOutfitHistory] = useState<OutfitLayer[]>([]);
   const [currentOutfitIndex, setCurrentOutfitIndex] = useState(0);
@@ -387,9 +388,8 @@ const App: React.FC = () => {
           >
             <UserHeader 
                 user={appUser 
-                  // 🔴 التعديل: استخدام `appUser.credits` مباشرة
-                  ? { name: appUser.name, credits: appUser.credits, isAuthenticated: true, plan: appUser.plan, generationsUsedThisSession: 0, transactionHistory: [] }
-                  : { name: 'Guest', credits: 0, isAuthenticated: false, plan: 'free', generationsUsedThisSession: 0, transactionHistory: [] }
+                  ? { name: appUser.name, credits: appUser.credits, isAuthenticated: true, plan: appUser.plan }
+                  : { name: 'Guest', credits: 0, isAuthenticated: false, plan: 'free' }
                 }
                 onHistoryClick={() => setActiveModal('history')} 
                 onEarnCreditsClick={() => setActiveModal('earnCredits')} 
@@ -472,74 +472,106 @@ const App: React.FC = () => {
     <Modal onClose={() => setActiveModal(null)}>
       <div className="p-8">
         <h2 className="text-3xl font-serif tracking-wider text-gray-800 mb-2 text-center">Out of Credits!</h2>
-        {/* 🔴 التعديل: قراءة الرصيد من `appUser` */}
         <p className="text-gray-600 mb-6 text-center">Your current credits: <strong className="text-gray-900">{appUser?.credits ?? 0}</strong>. Please purchase or earn more.</p>
-        <div className="bg-gray-50 border border-gray-200 p-6 rounded-lg">
-            <h3 className="text-xl font-bold text-gray-800">Premium Plan</h3>
-            <p className="text-gray-600 mt-1">Get unlimited generations, high-resolution exports, and priority support.</p>
-            <ul className="mt-4 space-y-2 text-gray-700">
-                <li className="flex items-center"><CheckCircleIcon className="w-5 h-5 text-green-500 mr-2"/> Unlimited Generations</li>
-                <li className="flex items-center"><CheckCircleIcon className="w-5 h-5 text-green-500 mr-2"/> Faster Processing</li>
-                <li className="flex items-center"><CheckCircleIcon className="w-5 h-5 text-green-500 mr-2"/> Save Looks to Your Profile</li>
-            </ul>
-            <button onClick={() => setActiveModal('earnCredits')} className="mt-6 w-full text-center bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-gray-700">
-                Buy Credits Now
-            </button>
-        </div>
+        <button onClick={() => setActiveModal('earnCredits')} className="mt-6 w-full text-center bg-gray-900 text-white font-semibold py-3 px-4 rounded-lg">
+            Buy Credits Now
+        </button>
       </div>
     </Modal>
   );
   
+  // 🔴🔴🔴 مكون كسب النقاط المحدث بالكامل مع منطق الإعلانات 🔴🔴🔴
   const EarnCreditsModal = () => {
     const [isWatchingAd, setIsWatchingAd] = useState(false);
-    
-    // 🔴 التعديل: استخدام `initiatePurchase` مباشرة من `useAuth`
     const { initiatePurchase, isLoading: isBuying, error: purchaseError } = useAuth();
+    const auth = getAuth(); 
 
-    const watchAd = async () => {
-      // لا توجد دالة `addCredit` في السياق، لذا هذا الجزء للمحاكاة فقط
-      if (isWatchingAd) return;
-      setIsWatchingAd(true);
-      try {
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        addTransaction('Watched Ad (Simulation)', 1); 
-      } catch (e) {
-        setError('Failed to add credit after ad. Try again.');
-      } finally {
-        setIsWatchingAd(false);
-      }
-    }
+    const adsNeeded = 4;
+    const adsWatched = (appUser as any)?.adsWatched ?? 0;
+
+    const handleWatchAd = async () => {
+        if (isWatchingAd || !appUser) return;
+        setIsWatchingAd(true);
+        setError(null);
+    
+        try {
+            console.log("Simulating ad watch...");
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            console.log("Ad watch simulation finished.");
+
+            const user = auth.currentUser;
+            if (!user) throw new Error("Authentication expired. Please sign in again.");
+    
+            const token = await user.getIdToken(true);
+            const uid = user.uid;
+    
+            const response = await fetch(`${WORKER_URL}verify-ad`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid, token }),
+            });
+    
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to verify ad watch.");
+            }
+    
+        } catch (e) {
+            const friendlyError = e instanceof Error ? e.message : "An unknown error occurred.";
+            console.error("Ad Watch Error:", friendlyError);
+            setError(friendlyError);
+        } finally {
+            setIsWatchingAd(false);
+        }
+    };
 
     return (
       <Modal onClose={() => setActiveModal(null)}>
         <div className="p-8">
           <h2 className="text-3xl font-serif tracking-wider text-gray-800 mb-2 text-center">Get More Credits</h2>
-          <p className="text-gray-600 mb-6 text-center">Watch an ad for a free credit or purchase a bundle.</p>
-          <div className="space-y-4">
-              <button onClick={watchAd} disabled={isWatchingAd} className="w-full text-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-blue-500 flex items-center justify-center disabled:bg-blue-300">
-                  {isWatchingAd ? <Spinner /> : <><PlusIcon className="w-5 h-5 mr-2" /> Watch Ad (Earn 1 Credit)</>}
-              </button>
-              {purchaseError && <p className="text-red-500 text-sm mt-2 text-center">{purchaseError}</p>}
-              <div className="grid grid-cols-2 gap-3">
-                <button 
-                    onClick={() => initiatePurchase('basic')} 
-                    disabled={isBuying}
-                    className="text-center bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-gray-300 relative"
-                >
-                    {isBuying ? <Spinner className="absolute inset-0 m-auto"/> : null}
-                    <p className={`font-bold text-lg ${isBuying ? 'opacity-0' : ''}`}>20 Credits</p>
-                    <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$5.00</p>
-                </button>
-                <button 
-                    onClick={() => initiatePurchase('pro')} 
-                    disabled={isBuying}
-                    className="text-center bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-gray-300 relative"
-                >
-                    {isBuying ? <Spinner className="absolute inset-0 m-auto"/> : null}
-                    <p className={`font-bold text-lg ${isBuying ? 'opacity-0' : ''}`}>50 Credits</p>
-                    <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$10.00</p>
-                </button>
-              </div>
+          <p className="text-gray-600 mb-6 text-center">Watch ads to earn a free credit, or purchase a bundle below.</p>
+          
+          <div className="space-y-3 border p-4 rounded-lg bg-gray-50">
+            <div>
+              <p className="font-semibold text-center text-gray-700">Earn 1 Free Credit</p>
+              <p className="text-sm text-center text-gray-500">Watch {adsNeeded} short ads to claim your reward.</p>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" 
+                style={{ width: `${(adsWatched / adsNeeded) * 100}%` }}
+              ></div>
+            </div>
+            <p className="text-center text-sm font-medium text-gray-600">
+              Progress: {adsWatched} / {adsNeeded} ads watched
+            </p>
+            <button onClick={handleWatchAd} disabled={isWatchingAd || !isAuthenticated} className="w-full text-center bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-blue-500 flex items-center justify-center disabled:bg-blue-300 disabled:cursor-not-allowed">
+                {isWatchingAd ? <Spinner /> : <><PlusIcon className="w-5 h-5 mr-2" /> Watch Ad</>}
+            </button> 
+            {!isAuthenticated && <p className="text-xs text-center text-red-500 mt-1">You must be signed in to watch ads.</p>}
+          </div>
+
+          {(error || purchaseError) && <p className="text-red-500 text-sm mt-4 text-center">{error || purchaseError}</p>}
+          
+          <div className="grid grid-cols-2 gap-3 mt-4">
+            <button 
+                onClick={() => initiatePurchase('basic')} 
+                disabled={isBuying}
+                className="text-center bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-gray-300 relative"
+            >
+                {isBuying ? <Spinner className="absolute inset-0 m-auto"/> : null}
+                <p className={`font-bold text-lg ${isBuying ? 'opacity-0' : ''}`}>20 Credits</p>
+                <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$5.00</p>
+            </button>
+            <button 
+                onClick={() => initiatePurchase('pro')} 
+                disabled={isBuying}
+                className="text-center bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors duration-200 hover:bg-gray-300 relative"
+            >
+                {isBuying ? <Spinner className="absolute inset-0 m-auto"/> : null}
+                <p className={`font-bold text-lg ${isBuying ? 'opacity-0' : ''}`}>50 Credits</p>
+                <p className={`text-sm ${isBuying ? 'opacity-0' : ''}`}>$10.00</p>
+            </button>
           </div>
         </div>
       </Modal>

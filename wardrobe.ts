@@ -10,26 +10,26 @@ export const defaultWardrobe: WardrobeItem[] = [
   {
     id: 'gemini-sweat',
     name: 'Gemini Sweat',
-    url: 'https://storage.googleapis.com/gemini-95-icons/try-on/gemini-sweat-2.png',
+    url: 'https://i.imghippo.com/files/lSk5925mg.png',
   },
   {
     id: 'gemini-tee',
     name: 'Gemini Tee',
-    url: 'https://storage.googleapis.com/gemini-95-icons/try-on/Gemini-tee.png',
+    url: 'https://i.imghippo.com/files/XRO2445V.png',
   },
   {
-    id: 'blue-denim-jacket',
-    name: 'Blue Denim Jacket',
-    url: 'https://storage.googleapis.com/gemini-95-icons/try-on/blue-denim-jacket.png',
+    id: 'party dress',
+    name: 'party dress',
+    url: 'https://i.imghippo.com/files/Jhlj9804sRk.png',
   },
   {
     id: 'red-graphic-tee',
     name: 'Red Graphic Tee',
-    url: 'https://storage.googleapis.com/gemini-95-icons/try-on/red-graphic-tee.png',
+    url: 'https://i.imghippo.com/files/pnOB7650KLQ.png',
   },
   {
     id: 'black-skinny-jeans',
     name: 'Black Skinny Jeans',
-    url: 'https://storage.googleapis.com/gemini-95-icons/try-on/black-skinny-jeans.png',
+    url: 'https://i.imghippo.com/files/ObV9707X.png',
   }
 ];
